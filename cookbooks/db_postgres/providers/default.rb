@@ -185,12 +185,13 @@ action :install_server do
   end
 
   ## Move PostgreSQL base backup dir
-  ruby 'move_postgresql_backup' do
-    not_if do File.symlink?(node[:db_postgres][:basedir]/backups) end
+  backup_dir = "#{node[:db_postgres][:basedir]}/backups"
+  ruby "move_postgresql_backup" do
+    not_if do ::File.symlink?(backup_dir) end
     code <<-EOH
-      `rm -rf "#{node[:db_postgres][:basedir]/backups}"`
+      `rm -rf #{backup_dir}`
       `mkdir -p /mnt/backups`
-      `ln -s /mnt/backups "#{node[:db_postgres][:basedir]/backups}"`
+      `ln -s /mnt/backups #{backup_dir}`
       `chown -R postgres:postgres /mnt/backups`
     EOH
   end
@@ -335,7 +336,7 @@ action :enable_replication do
   RightScale::Database::PostgreSQL::Helper.reconfigure_replication_info(newmaster_host, rep_user, rep_pass, app_name)
 
   log "  Wiping existing runtime config files"
-  `rm -rf "#{node[:db][:datadir]}/pg_xlog/*"`
+  `rm -rf "#{node[:db][:datadir]}/pg_xlog/*" "#{node[:db_postgres][:basedir]}/backups/*"`
 
   # Ensure that database started
   # service provider uses the status command to decide if it
