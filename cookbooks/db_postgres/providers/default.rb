@@ -188,9 +188,9 @@ action :install_server do
   ruby 'move_postgresql_backup' do
     not_if do File.symlink?(node[:db_postgres][:basedir]/backups) end
     code <<-EOH
-      `rm -rf #{node[:db_postgres][:basedir]/backups}`
+      `rm -rf "#{node[:db_postgres][:basedir]/backups}"`
       `mkdir -p /mnt/backups`
-      `ln -s /mnt/backups #{node[:db_postgres][:basedir]/backups}`
+      `ln -s /mnt/backups "#{node[:db_postgres][:basedir]/backups}"`
       `chown -R postgres:postgres /mnt/backups`
     EOH
   end
