@@ -20,8 +20,7 @@ when "centos", "redhat"
   set_unless[:rightscale][:collectd_plugin_dir] = "/etc/collectd.d"
   case platform_version
   when /^5\..+/
-#    set_unless[:rightscale][:collectd_packages_version] = "4.10.0-4.el5"
-    set_unless[:rightscale][:collectd_packages_version] = "latest"
+    set_unless[:rightscale][:collectd_packages_version] = "4.10.0-4.el5"
     set_unless[:rightscale][:collectd_remove_existing] = true
   when /^6\..+/
     set_unless[:rightscale][:collectd_packages_version] = "latest"
