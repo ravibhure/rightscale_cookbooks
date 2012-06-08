@@ -33,6 +33,18 @@ package "collectd" do
   action :remove
 end
 
+
+# Install collectd packages
+collectd_version = node[:rightscale][:collectd_packages_version]
+log "Installing collectd package(s) version #{collectd_version}"
+packages = node[:rightscale][:collectd_packages]
+packages.each do |p|
+  package p do
+    version "#{collectd_version}" unless collectd_version == "latest"
+    action :install
+  end
+end
+
 # If APT, pin this package version so it can't be updated.
 cookbook_file "/etc/apt/preferences.d/00rightscale" do
   only_if { node[:platform] == "ubuntu" }
@@ -50,18 +62,6 @@ if node[:platform] =~ /redhat|centos/
     EOF
   end
 end
-
-# Install collectd packages
-collectd_version = node[:rightscale][:collectd_packages_version]
-log "Installing collectd package(s) version #{collectd_version}"
-packages = node[:rightscale][:collectd_packages]
-packages.each do |p|
-  yum_package p do
-    version "#{collectd_version}" unless collectd_version == "latest"
-    action :install
-  end
-end
-
 
 # Enable service on system restart
 service "collectd" do
