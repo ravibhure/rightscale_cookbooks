@@ -31,4 +31,6 @@ when "centos"
   set_unless[:db_postgres][:packages_uninstall] = ""
   set_unless[:db_postgres][:log] = ""
   set_unless[:db_postgres][:log_error] = ""
+when "ubuntu"
+  set[:db_postgres][:socket] = "/var/run/postgresql"
 end
