@@ -351,6 +351,9 @@ action :setup_db_connection do
     owner "#{node[:app_tomcat][:app_user]}"
     group "root"
     mode "0644"
+    variables(
+      :datasource => datasource
+    )
     cookbook 'app_tomcat'
   end
 
