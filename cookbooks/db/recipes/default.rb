@@ -14,6 +14,6 @@ db node[:db][:data_dir] do
   action :nothing
 end
 
-include_recipe "db::install_client"
+#include_recipe "db::install_client"
 
 rightscale_marker :end
