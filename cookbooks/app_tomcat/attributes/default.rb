@@ -48,7 +48,7 @@ when "centos", "fedora", "suse", "redhat", "redhatenterpriseserver"
     set[:app_tomcat][:datasource_name] = "jdbc/MYSQLDB"
     set[:db_mysql][:socket] = "/var/lib/mysql/mysql.sock"
   elsif app_tomcat[:db_adapter] == "postgresql"
-    set[:app_tomcat][:datasource_name] = "jdbc/postgres"
+    set_unless[:app_tomcat][:datasource_name] = "jdbc/postgres"
     set[:db_postgres][:socket] = "/var/run/postgresql"
   else
     raise "Unrecognized database adapter #{node[:app_tomcat][:db_adapter]}, exiting "
