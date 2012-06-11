@@ -328,7 +328,6 @@ action :setup_db_connection do
       group         "root"
       mode          "0644"
       database      db_name
-      datasource    datasource
       cookbook      'app_tomcat'
     end
   elsif db_adapter == "postgresql"
@@ -338,7 +337,6 @@ action :setup_db_connection do
       group         "root"
       mode          "0644"
       database      db_name
-      datasource    datasource
       cookbook      'app_tomcat'
     end
   else
