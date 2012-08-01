@@ -10,8 +10,9 @@
 * Requires "app" Lightweight resource cookbook https://github.com/rightscale/rightscale_cookbooks/tree/master/cookbooks/app
   or your own implementation of the "app" resource. See "app" cookbook README for details.
 * Requires a VM launched from a RightScale managed RightImage
-* Tested on CentOS 5.8 RightImage
-* Tested on RedHat 5.8 RightImage
+* Tested on CentOS 6.2 RightImage
+* Tested on RedHat 6.2 RightImage
+* Tested on Ubuntu 12.04 RightImage
 
 == COOKBOOKS DEPENDENCIES:
 
@@ -23,6 +24,7 @@ Please see <tt>metadata.rb</tt> file for the latest dependencies.
 * <tt>logrotate</tt>
 * <tt>app</tt>
 * <tt>db</tt>
+* <tt>python</tt>
 
 == KNOWN LIMITATIONS:
 
@@ -44,15 +46,18 @@ The <tt>app_django</tt> cookbook will install and set up an Apache + Django appl
 
 <b>Apache</b>
 
-Server version: Apache/2.2.3
+Server version: Apache/2.2.15
 
-Server built: Feb 8 2012 08:19:50
+Server built: Feb 13 2012 22:31:42
+
+<b>Python</b>
+
+Python version 2.6.6 (2012-06-18) (x86_64-linux)
+Pip version 1.1
 
 <b>Django</b>
 
 Django version 1.4
-
-Python 2.6.8 (2012-04-12) (x86_64-linux)
 
 also:
 * <tt>Custom python command input</tt>
@@ -67,10 +72,10 @@ For more info see: http://support.rightscale.com/18-Release_Notes/ServerTemplate
 
 ServerTemplate built on this cookbook can be combined in two modes:
 
-1 - For apps with bundler support, add the "install_required app python_modules" recipe, and
+1 - For apps with bundler support, add the "install_required_app_python_modules" recipe, and
 "run_custom_python_commands" for migration commands
 
-2 - For apps without bundler support, add "install_custom_python_modules" recipe, and
+2 - For apps without bundler support, add "install_custom_python_packages" recipe, and
 "run_custom_python_commands" for migration commands
 
 Mix these recipes in any way to satisfy project requirements.
