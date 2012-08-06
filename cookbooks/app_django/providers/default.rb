@@ -48,6 +48,12 @@ action :install do
     package p
   end
 
+  # Installing python modules dependencies
+  log "  Module dependencies which will be installed: #{node[:app_django][:module_dependencies]}"
+  node[:app_django][:module_dependencies].each do |mod|
+    apache_module mod
+  end
+
   # install Django 1.4
   python_pip "django" do
     version "#{node[:app_django][:version]}"
@@ -85,15 +91,31 @@ action :setup_vhost do
   app_add_listen_port django_port
 
   # Configure apache vhost for Django
+  log "  Creating apache.vhost"
   web_app "http-#{port}-#{node[:web_apache][:server_name]}.vhost" do
     template                   "apache_mod_wsgi_vhost.erb"
     docroot                    project_root
     vhost_port                 django_port.to_s
     server_name                node[:web_apache][:server_name]
-    apache_log_dir             node[:app_passenger][:apache][:log_dir]
-    apache_maintenance_page    node[:app_passenger][:apache][:maintenance_page]
-    apache_serve_local_files   node[:app_passenger][:apache][:serve_local_files]
+    debug                      node[:app_django][:debug_mode]
+    apache_log_dir             node[:app_django][:apache][:log_dir]
+    apache_maintenance_page    node[:app_django][:apache][:maintenance_page]
+    apache_serve_local_files   node[:app_django][:apache][:serve_local_files]
     cookbook                   "app_django"
+  end
+
+  # Define internal port for tomcat. It must be different than apache ports
+  log "  Creating wsgi.py"
+  template "#{project_root}/wsgi.py" do
+    action :create
+    source "wsgi.py.erb"
+    group "root"
+    owner "#{node[:app_django][:apache][:user]}"
+    cookbook 'app_django'
+    variables(
+            :doc_root => project_root,
+            :project =>  node[:web_apache][:application_name]
+          )
   end
 
 end
@@ -102,20 +124,36 @@ end
 action :setup_db_connection do
   project_root = new_resource.destination
   db_name = node[:app_django][:db_name]
+  debug_mode = node[:app_django][:debug_mode]
+
+  # moves django default settings file to settings_default and create settings.py from django template
+  settingsfile = ::File.expand_path(::File.join(project_root, "settings.py"))
+  defaultfile = ::File.expand_path(::File.join(project_root, "settings_default.py"))
+  ruby_block "move django settings" do
+    only_if { ::File.exists?(settingsfile) }
+    not_if { ::File.exists?(defaultfile) }
+    block do
+      require 'fileutils'
+      FileUtils.mv(settingsfile, defaultfile)
+    end
+  end
 
   db_adapter = node[:app_django][:db_adapter]
   # Tells selected db_adapter to fill in it's specific connection template
+  log "  Creating settings.py"
   if db_adapter == "mysql"
     db_mysql_connect_app ::File.join(project_root, "settings.py") do
       template "settings.py.erb"
       cookbook "app_django"
       database db_name
+      debug    debug_mode
     end
   elsif db_adapter == "postgresql"
     db_postgres_connect_app ::File.join(project_root, "settings.py") do
       template "settings.py.erb"
       cookbook "app_django"
       database db_name
+      debug    debug_mode
     end
   else
     raise "Unrecognized database adapter #{node[:app_django][:db_adapter]}, exiting"
@@ -135,7 +173,7 @@ action :code_update do
   repo "default" do
     destination deploy_dir
     action node[:repo][:default][:perform_action].to_sym
-    app_user node[:app_django][:apache][:app_user]
+    app_user node[:app_django][:apache][:user]
     repository node[:repo][:default][:repository]
     persist false
   end

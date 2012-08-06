@@ -14,7 +14,6 @@ set_unless[:app_django][:apache][:maintenance_page]=""
 # By default apache will serve any existing local files directly (except actionable ones)
 set_unless[:app_django][:apache][:serve_local_files]="true"
 # List of required apache modules
-set[:app_django][:module_dependencies] = ["proxy", "proxy_ajp"]
 
 # Defining apache user, group and log directory path depending on platform.
 case node[:platform]
@@ -22,10 +21,12 @@ case node[:platform]
     set[:app_django][:apache][:user]="www-data"
     set[:app_django][:apache][:group]="www-data"
     set[:app_django][:apache][:log_dir]="/var/log/apache2"
+    set[:app_django][:module_dependencies] = [ "proxy", "proxy_http" ]
   when "centos","redhat","redhatenterpriseserver","fedora","suse"
     set[:app_django][:apache][:user]="apache"
     set[:app_django][:apache][:group]="apache"
     set[:app_django][:apache][:log_dir]="/var/log/httpd"
+    set[:app_django][:module_dependencies] = [ "proxy", "proxy_http" ]
   else
     raise "Unrecognized distro #{node[:platform]}, exiting "
 end
@@ -40,5 +41,7 @@ set_unless[:app_django][:project][:opt_pip_list]=""
 set_unless[:app_django][:project][:custom_cmd]=""
 # Application database name
 set_unless[:app_django][:db_name]=""
+# Django application debug mode
+set_unless[:app_django][:debug_mode]="False"
 # Type of database adapter which rails application will use
 set_unless[:app_django][:db_adapter]="mysql"
